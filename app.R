@@ -577,7 +577,7 @@ ui <- navbarPage(
               "(2016-2023)."),
             p("It is designed for ", strong("NYC residents who already own ",
               "a dog — or are thinking about getting one"), ". ",
-              "Use the tabs above to explore:"),
+              "Use the tabs above to explore how dog life changes across New York City"),
             tags$ul(
               tags$li(strong("Trends"), " — how bite incidents shifted across ",
                       "the years, including the 2020 COVID dip."),
@@ -588,8 +588,7 @@ ui <- navbarPage(
               tags$li(strong("About"), " — data sources and credits.")
             ),
             p(em("Tip:"), " hover over any map polygon or chart point for ",
-              "details. Each colour represents one borough — the same ",
-              "borough always wears the same colour across every tab.")
+              "details. The same colour always means the same borough..")
           )
         ),
         column(
@@ -678,20 +677,20 @@ ui <- navbarPage(
       div(
         class = "intro-narrative",
         tags$h3(
-          "What this chart tells you",
+          "What this chart tells us",
           style = "margin-top: 1rem; margin-bottom: 0.5rem;"
         ),
 
         p(
-          "Dog bite incidents are not distributed evenly across New York City. ",
+          "Some boroughs report far more bite incidents than others.",
           "Queens records the highest number of reported bite incidents almost every year — ",
           "even though it is not the borough with the most licensed dogs. ",
           "This suggests that bite incidents are shaped by more than population alone. ",
-          "Neighbourhood environment, public space design, and dog-owner behaviour all likely play a role."
+          "Local parks, crowding, and daily routines may all affect safety."
         ),
 
         p(
-          "A clear citywide pattern also appears in 2020. Every borough experiences ",
+          "One pattern stands out in 2020. Every borough experiences ",
           "a sharp decline during the COVID-19 period, when lockdowns reduced outdoor ",
           "interaction between people and dogs, and many minor incidents were likely ",
           "underreported. By 2022 and 2023, most boroughs return close to — or even exceed — ",
@@ -769,7 +768,6 @@ ui <- navbarPage(
         class = "intro-narrative",
 
         p(
-          "Dog-friendly infrastructure is not distributed evenly across New York City. ",
           "Some neighbourhoods have dense dog populations and multiple official off-leash runs, ",
           "while others have growing dog communities but very limited public space designed for them."
         ),
@@ -777,13 +775,16 @@ ui <- navbarPage(
         p(
           "Use the toggle on the left to switch between two perspectives: ",
           strong("dog density"),
-          " (where licensed dogs are concentrated) and ",
+          " (where licensed dogs out of 1000m\u00B2) and ",
           strong("gap index"),
-          " (where the mismatch between dogs and off-leash access is greatest)."
+          " (where dogs outnumber nearby off-leash spaces)."
         ),
 
         p(
-          "Each point on the map represents an official NYC off-leash dog run. ",
+          "Each point on the map represents an official NYC off-leash dog run. "),
+        p(
+          "Click the green dot to see details of each park",
+          br(),
           "Hover over a ZIP code to explore local conditions and compare neighbourhood patterns across the city."
         )
       ),
@@ -825,7 +826,7 @@ ui <- navbarPage(
       div(
         class = "intro-narrative",
         tags$h3(
-          "What this map reveals?",
+          "What this map tells us",
           style = "margin-top: 1rem; margin-bottom: 0.5rem;"
         ),
 
@@ -833,26 +834,22 @@ ui <- navbarPage(
           "Manhattan and parts of north-west Brooklyn carry the highest ",
           "dog density in the city - and these are also the areas best ",
           "served by official off-leash runs. Move outward into Queens, ",
-          "the Bronx, and Staten Island, the infrastructure becomes noticeably thinner. ",
+          "the Bronx, and Staten Island, Dog runs become much harder to find.",
           "Most of the city's ZIP codes have ",
           strong("no off-leash run at all"), "."
         ),
 
         p(
-          "Switching to the gap index changes the story from density to inequality. ",
-          "The brightest areas on the map are not necessarily the places with the ",
-          "most dogs, but the neighbourhoods where access to off-leash space lags ",
-          "furthest behind local demand."
+          "Switching to the gap index changes the story from population to access. ",
+          "Some neighbourhoods with large dog communities still have very limited off-leash space nearby. ",
+          "The brightest areas on the map highlight places where dogs may be competing for fewer public spaces to exercise and socialise."
         ),
 
         br(),
 
         tags$h4("Key takeaway"),
         p(
-          "Dog ownership and dog-friendly infrastructure do not grow evenly together. ",
-          "For residents choosing where to live with a dog, the neiborhood with many more ",
-          "dog owners does not automatically mean there is adequate public space ",
-          "for exercise, socialisation, or safe off-leash activity."
+          "More dogs does not always mean more dog-friendly space. Some neighbourhoods have growing dog communities but limited room for exercise, play, and off-leash activity. Exploring these patterns can help residents better understand how daily dog life may differ across NYC."
         ),
 
         br(),
@@ -935,11 +932,68 @@ ui <- navbarPage(
         )
       ),
 
-      # 7 / 5 split - map left, scatter right. Matched height = 520px so
-      # the two visualisation areas share a baseline.
+      # -------------------------------------------------------------------
+      # Row 1: Spatial overview + guided interpretation
+      # -------------------------------------------------------------------
       fluidRow(
-        column(width = 7, leafletOutput("tab4_map",     height = "520px")),
-        column(width = 5, plotlyOutput("tab4_scatter",  height = "520px"))
+
+        # LEFT — map
+        column(
+          width = 7,
+          leafletOutput("tab4_map", height = "500px")
+        ),
+
+        # RIGHT — short guided narrative
+        column(
+          width = 5,
+
+          div(
+            class = "intro-narrative",
+
+            tags$h3(
+              "What this map suggests?",
+              style = "margin-top: 0;"
+            ),
+
+            p(
+              "The highest bite rates do not concentrate in Manhattan, ",
+              "even though Manhattan has the city's highest dog density. ",
+              "Instead, darker areas appear in parts of the Bronx, central Brooklyn, ",
+              "and southern Queens."
+            ),
+
+            p(
+              "Several of these neighbourhoods also appeared earlier in the ",
+              strong("Infrastructure"),
+              " tab as places with limited off-leash access."
+            ),
+
+            p(
+              "This suggests that safety outcomes may relate not only to dog ownership itself, ",
+              "but also to how public space, infrastructure access, and neighbourhood conditions interact."
+            ),
+
+            br(),
+
+            tags$h4("Before moving down"),
+            p(
+              "Use the scatter plot below to explore whether income patterns help explain ",
+              "some of these spatial differences across NYC ZIP codes."
+            )
+          )
+        )
+      ),
+
+      br(),
+
+      # -------------------------------------------------------------------
+      # Row 2: Full-width scatter plot
+      # -------------------------------------------------------------------
+      fluidRow(
+        column(
+          width = 12,
+          plotlyOutput("tab4_scatter", height = "500px")
+        )
       ),
 
       # ---- Interpretive reflection (house style, locked decision #9) -----
@@ -949,35 +1003,26 @@ ui <- navbarPage(
       div(
         class = "intro-narrative",
         tags$h3(
-          "What this view reveals",
+          "What this view reveals?",
           style = "margin-top: 1rem; margin-bottom: 0.5rem;"
         ),
 
         p(
-          "The map shows that the highest bite rates do not concentrate in ",
-          "Manhattan, even though Manhattan has by far the highest licensed-dog ",
-          "density. The deepest reds tend to sit in pockets of the Bronx, ",
-          "central Brooklyn, and southern Queens - areas that earlier tabs ",
-          "already flagged for limited off-leash access."
-        ),
-
-        p(
-          "The scatter on the right adds the income dimension. Across all ",
-          "ZIP codes there is a soft downward tendency: lower-income ",
-          "neighbourhoods sit slightly higher on the bite-rate axis, and the ",
-          "highest-income ZIP codes cluster near the bottom. The relationship ",
-          "is real but loose - plenty of low-income ZCTAs report low bite ",
-          "rates, and a handful of mid-income outliers sit at the very top."
+          "The scatter plot adds another layer to the story by comparing bite rate with neighbourhood income. ",
+          "Some lower-income ZIP codes appear higher on the bite-rate axis, while many higher-income areas cluster lower. ",
+          "However, the relationship is not consistent across the city. Boroughs overlap heavily, and many neighbourhoods ",
+          "do not follow the overall trend. This suggests that income alone cannot explain dog safety outcomes."
         ),
 
         br(),
 
         tags$h4("Key takeaway"),
         p(
-          "Safety risk is shaped by where a neighbourhood sits in the city, ",
-          "not just by how many dogs live there. A higher-income ZIP code ",
-          "with good park access is, on average, a safer place to walk a dog ",
-          "than a lower-income ZIP code with the same dog population."
+          "Dog safety patterns are connected to many neighbourhood conditions at once — ",
+          "including infrastructure access, housing density, public space, and community routines. ",
+          "Income may relate to some of these differences, but it does not determine whether a neighbourhood ",
+          "is ‘good’ or ‘bad’ for dogs. The map instead highlights how uneven urban conditions can shape ",
+          "everyday experiences for dog owners across NYC."
         ),
 
         br(),
@@ -1373,13 +1418,19 @@ server <- function(input, output, session) {
         xaxis  = list(
           title      = "Median household income (USD)",
           tickformat = "$,d"
+
         ),
         yaxis  = list(
           title     = "Bite rate (per 1,000 dogs, 2016–2023)",
           rangemode = "tozero"
         ),
-        legend = list(title = list(text = "Borough")),
-        margin = list(t = 30, r = 20, b = 50, l = 70)
+        legend = list(
+          title = list(text = "Borough"),
+          orientation = "h",
+          x = 0,
+          y = 1.12
+        ),
+        margin = list(t = 70, r = 20, b = 60, l = 70)
       ) |>
       config(displayModeBar = FALSE)
   })
