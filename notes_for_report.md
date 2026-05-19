@@ -24,7 +24,7 @@ To find a decision: jump to the Build Status table → click the tab section →
 | Tab 1 — Introduction | Built | DVP1→2 transition (pre 2026-05-18) | [Tab 1](#tab-1-introduction) |
 | Tab 2 — Trends | Built | 2026-05-18 | [Tab 2](#tab-2-trends) |
 | Tab 3 — Infrastructure | Built | 2026-05-18 | [Tab 3](#tab-3-infrastructure) |
-| Tab 4 — Safety | Pending | — | [Tab 4](#tab-4-safety) |
+| Tab 4 — Safety | Built | 2026-05-19 | [Tab 4](#tab-4-safety) |
 | Tab 5 — About | Pending | — | [Tab 5](#tab-5-about) |
 
 Open decisions still on the table → [Open items](#open-items-for-next-session).
@@ -34,6 +34,27 @@ Open decisions still on the table → [Open items](#open-items-for-next-session)
 ## Session log
 
 Reverse-chronological — most recent first.
+
+### 2026-05-19 — Tab 4 (Safety) built + cross-tab narration polish
+
+**Scope:** full Tab 4 build (data helpers, two-row UI, two server outputs), narration voice polish across Tabs 1–4, DEP2 report added to reference materials for the upcoming About tab.
+
+**Files touched:** `app.R` (section 3g new — Tab 4 helpers; UI Tab 4 replaces the placeholder; server gains `output$tab4_map` and `output$tab4_scatter`; small copy edits on Tabs 1–3), `HANDOVER.md`, `notes_for_report.md`. Reference material added: `/Users/ez_us/Documents/5147/DVP/DEP_overview/DEP2_ZHAOWANTING-35507071.pdf`.
+
+**Decisions made this session:**
+
+- **Two-row layout, not side-by-side** — initial 7/5 single-row design was prototyped, then restructured by Echo into Row 1 = map (7) + side-narrative block (5), Row 2 = full-width scatter (12). The restructure is the decision of record because the 5-column scatter overlapped dots in the high-income / low-bite cluster and hover targets were too small for a casual reader. See [Layout entry](#layout--two-row-restructure-map--side-narrative-then-full-width-scatter).
+- **Rocket palette (direction = −1) for bite rate** — ports the Q3 colour choice from DEP2 Figure 7. Dark red = high bite rate, aligning with intuitive risk perception. See [Palette entry](#rocket-palette-reversed--ports-the-dep2-q3-decision).
+- **Single `renderLeaflet`, no `leafletProxy`/observer** — Tab 4 has no toggle, so the Tab 3 base-map-plus-proxy split would be over-engineering. One render call. See [Server entry](#server--single-renderleaflet-no-proxy-split).
+- **Map-specific narrative beside the map** — a deliberate departure from the strict below-views house style. Splitting "what the map suggests" (right of the map) from "what the scatter adds" (below it) matches the new vertical layout, where the scatter is no longer adjacent to the map. See [Narrative entry](#narrative-placement--map-side-block--full-reflection-block-below-scatter).
+- **No trendline on the scatter** — confirmed via AskUserQuestion at the start of the build. A LOESS or `lm` overlay would oversell a relationship that the DEP2 quartile analysis (Spearman ρ ranges from −0.30 to −0.75 *across* income quartiles) shows is heterogeneous. Bare points let the reader's eye integrate, the narrative carries the interpretation. See [Trendline entry](#scatter--no-trendline-decision-confirmed-against-the-dep2-quartile-analysis).
+- **Horizontal scatter legend at the top** — `legend = list(orientation = "h", x = 0, y = 1.12)`. Was vertical/right by default; rotated when the scatter moved to full-width. Top margin bumped from `t = 30` to `t = 70` to make room. See [Legend entry](#scatter-legend--rotated-horizontal-after-the-full-width-restructure).
+- **`tab4_scatter_data` built at startup**, not in the reactive — same split-phase rationale as the Tab 2 YoY columns and Tab 3 polygon labels. `st_drop_geometry()` before the filter so 182 MULTIPOLYGONs don't ship in the page JSON. See [Scatter data entry](#scatter-data--st_drop_geometry--na-filter--prebuilt-tooltip-at-startup).
+- **NA bite_rate ZCTAs visible on map, dropped from scatter** — same ZCTAs render as `#EEEEEE` "No data" patches on the choropleth (legend explains them), but are removed from the scatter via `filter(!is.na(...))` so per-borough marker counts stay honest. See [NA handling entry](#na-handling--shown-on-the-map-dropped-from-the-scatter).
+- **`pal_bites` not sqrt-transformed** — unlike `dog_density` (right-skewed → Tab 3 sqrt transform), bite_rate is bounded by a meaningful zero and the per-1,000 normalisation. Its distribution sits close to linear, so the palette is fitted on raw values and the legend reads in native units. See [No transform entry](#bite_rate-not-sqrt-transformed--unlike-dog_density).
+- **Audience voice polish across Tabs 1–4** — Echo extended the "plain, friendly" voice (decision #10 in HANDOVER) further: reflection-block `<h3>`s moved from "tells you" to inclusive "tells us"; many paragraphs were re-cut for an age-8-to-80 reader. The voice now targets *anyone in a dog-owning household*, not just the owner. Cross-cutting entry updated below. See [Audience voice update](#audience-voice--plain-friendly-not-academic).
+
+**Bug / friction caught during this session:** none in the code, but three small consistency items spotted while reading Echo's restructure — logged under *Quick polish items to spot-check before submission* in HANDOVER (double period on Tab 1 line 591; sentence fragment on Tab 3 line 778; heading-form inconsistency on Tab 4 line 1006).
 
 ### 2026-05-18 — Tab 3 (Infrastructure) built
 
@@ -163,6 +184,11 @@ Reverse-chronological — most recent first.
 **Why:** The DVP brief defines the target audience as NYC residents who own a dog or are considering one — not the marker, not academic readers. Echo's draft language for the Tab 2 interpretive paragraph ("indicates that bite counts are not directly proportional to dog population size") was rewritten as "So bite counts in a borough aren't just a function of how many dogs live there" — same finding, plainer voice. Confirmed as the project's voice when Echo accepted the polish and applied it to her own subsequent restructure.
 
 **How to apply:** Default to the audience-voice version when drafting any user-facing copy. Echo reviews and overrides where needed.
+
+**Update — 2026-05-19:** Echo widened the target audience past "dog owner / considerer" to *anyone in a dog-owning household, child to grandparent*. Two concrete consequences applied across Tabs 1–4:
+
+1. **Inclusive register on reflection-block `<h3>`s.** "What this chart tells *you*" / "What this map reveals" → "What this chart tells *us*" / "What this map tells *us*". The "you" form reads as the app instructing the reader; the "us" form reads as the app reasoning *with* them. Tab 4's `<h3>` was left as the older form ("What this view reveals?") in the restructure — flagged in HANDOVER's polish list.
+2. **Plain vocabulary swaps.** Examples from Tab 2: *"Dog bite incidents are not distributed evenly across New York City"* → *"Some boroughs report far more bite incidents than others."* From Tab 3: *"the infrastructure becomes noticeably thinner"* → *"Dog runs become much harder to find."* The pattern: replace abstract noun phrases with concrete subject-verb sentences a reader can build a picture from.
 
 ### Tab reflection narrative pattern — house style
 
@@ -423,9 +449,120 @@ Reverse-chronological — most recent first.
 
 ## Tab 4: Safety
 
-*Pending — to be populated when this tab is built.*
+### Layout — two-row restructure: map + side narrative, then full-width scatter
 
-**Open decision before building:** narrative placement — one paragraph below both views, or a sentence-level insight near the heading? Likely answer: follow the Tab 2 house style (full reflection block below both views).
+**TL;DR:** Initial 7/5 single-row design (map left, scatter right) was prototyped and rejected. Final layout is Row 1 = `column(7, leaflet) + column(5, side-narrative)` and Row 2 = `column(12, scatter)`. The change makes hover targets large enough for a casual reader and gives the scatter room for a horizontal legend.
+
+**What was built:** Two `fluidRow`s. The first holds the leaflet choropleth (`column(width = 7, leafletOutput("tab4_map", height = "500px"))`) and an in-line narrative block immediately to its right (`column(width = 5, ...)`) containing a short `<h3>` "What this map suggests?", three plain-language paragraphs about the spatial findings, and a `<h4>` "Before moving down" prompt that hands the reader to the scatter. The second `fluidRow` holds the scatter at full width (`column(width = 12, plotlyOutput("tab4_scatter", height = "500px"))`).
+
+**Why the restructure was made:** The original 7/5 side-by-side design (map | scatter) followed the HANDOVER's 60/40 spec, but in practice the 5-column scatter was too narrow once the borough legend and the y-axis title were in. Manhattan ZCTAs cluster in the high-income / low-bite corner, and the squeeze meant their dots overlapped enough that hover targets were sub-pixel — a casual reader (which is the audience) couldn't reliably read any one ZIP. Moving the scatter to a full-width row gives every dot enough hit-area and gives the legend somewhere to live (horizontal across the top — see [Legend entry](#scatter-legend--rotated-horizontal-after-the-full-width-restructure)).
+
+**Trade-off acknowledged:** The two-row layout costs vertical scroll. A reader has to scroll past the map's side narrative to reach the scatter. Mitigated by the `<h4> "Before moving down"` prompt in the side narrative that explicitly directs the reader to keep scrolling — a small piece of narrative scaffolding that survives Segel & Heer's *guided exploration* idea without forcing the layout flatter.
+
+**Reference:** Munzner, *Visualization Analysis & Design*, ch. 11 — coordinated views can be juxtaposed *or* stacked; the choice is driven by how the analytical task connects them. Here the map and scatter answer two *sequential* sub-questions ("where are bite rates high?" → "does income relate?"), so vertical stacking maps to the reading order.
+
+### Narrative placement — map-side block + full reflection block below scatter
+
+**TL;DR:** Departure from the strict below-views house style. The map gets its own narrative beside it (right of the map); the full house-style reflection block sits below the scatter and is now scatter-focused.
+
+**Choice:** Split the Tab 4 narrative into two locations:
+
+1. **Right of the map (Row 1, col 5):** `<h3>` "What this map suggests?" + three short paragraphs interpreting the *spatial* findings (highest rates in parts of the Bronx, central Brooklyn, southern Queens — not Manhattan despite its dog density). Closes with a `<h4>` "Before moving down" + one sentence telling the reader the scatter explores income.
+2. **Below the scatter (Row 2 + below):** The standard `<h3>` lead + paragraph + three `<h4>` callouts (*Key takeaway* / *Important context* / *Continue exploring*) reflection block, now scatter-focused — i.e., it discusses the income relationship rather than re-interpreting the map.
+
+**Why split the narrative:** With the scatter no longer adjacent to the map, the original house-style block (which on Tabs 2 and 3 sits *below both views* and references both) would force a reader to scroll past the scatter to read the map's interpretation. Putting the map's interpretation immediately to its right keeps the reflection adjacent to the visual it explains. The bottom block focuses on the scatter because that is what the reader has just scrolled through.
+
+**Why this is consistent with house style rather than a violation:** The Setup → Visual → Reflection pattern (Segel & Heer 2010) is preserved per view: the map's setup is the orienting paragraph above Row 1, its visual is the map, its reflection is the right-column block. The scatter's setup is the `<h4>` "Before moving down" hand-off, its visual is the full-width chart, its reflection is the bottom block. The pattern applies twice instead of once.
+
+**Reference:** Segel, E. & Heer, J. (2010). Narrative Visualization: Telling Stories with Data. *IEEE TVCG*, 16(6).
+
+### Rocket palette reversed — ports the DEP2 Q3 decision
+
+**TL;DR:** `viridisLite::rocket(256, direction = -1)`. Direct port of the colour decision from DEP2 Figure 7 (bite-rate choropleth). Dark red = high bite rate, light cream = low. Continuity between Phase 1 and Phase 2 is intentional.
+
+**Choice:** `pal_bites <- leaflet::colorNumeric(palette = viridisLite::rocket(256, direction = -1), domain = master_filtered$bite_rate, na.color = "#EEEEEE")`.
+
+**Why this palette:** Rocket is the warm-toned member of the viridis family. It is perceptually uniform across its domain (same Crameri-Shephard-Heron 2020 guarantee as plasma / viridis) but its hue range (light cream → magenta → deep red) reads as *alarming* rather than neutral — appropriate for a quantitative variable where higher values represent worse outcomes. DEP2 Section 3.3 records the same reasoning ("red is commonly associated with danger or alert").
+
+**Why `direction = -1`:** `viridisLite::rocket()` defaults to *light → dark* (low to high). Without reversal, the highest bite rates would map to the dark cream / yellow end and the lowest to deep red — visually claiming that quiet neighbourhoods are dangerous. `direction = -1` flips the vector before `colorNumeric` sees it, restoring the "dark red = high" mapping a reader's instinct expects.
+
+**Why not transformed:** Unlike `dog_density` (right-skewed → Tab 3 sqrt transform), `bite_rate` is bounded by a meaningful zero and by the per-1,000 normalisation, so its empirical distribution sits much closer to linear. The legend therefore reads in native units (bites per 1,000 dogs) without a back-transform. Same justification logged under [Bite_rate not sqrt-transformed](#bite_rate-not-sqrt-transformed--unlike-dog_density).
+
+**Reference:** Crameri, F., Shephard, G. E. & Heron, P. J. (2020). The misuse of colour in science communication. *Nature Communications*, 11, 5444.
+
+### Server — single `renderLeaflet`, no proxy split
+
+**TL;DR:** Tab 4 has no toggle / radio input, so the Tab 3 `renderLeaflet` + `leafletProxy` split would be over-engineering. One render call, no observers. The map redraws nothing because the user changes nothing about it.
+
+**Choice:** `output$tab4_map <- renderLeaflet({ leaflet() |> addProviderTiles(...) |> setView(...) |> addPolygons(...) |> addLegend(...) })`. No `observeEvent`, no `leafletProxy`, no `addMapPane` panes (no marker layer to lift above the choropleth).
+
+**Why:** The Tab 3 proxy pattern is justified by the radio-button toggle that swaps which metric the choropleth encodes — re-running `renderLeaflet` on every toggle click would re-fetch tiles and reset the user's zoom/pan. Tab 4 has no toggle. Adding the proxy split anyway would introduce two scopes (a render and an observer), two layer-group names, and two failure modes, all to support functionality that does not exist. *Convention only where it earns its keep.*
+
+**Reference:** Cheng, J. et al. *leaflet for R*, vignette "leaflet-shiny.Rmd": https://rstudio.github.io/leaflet/shiny.html — the proxy pattern is specifically recommended for "responses to UI events without redrawing the entire map." No UI events affect this map.
+
+### Scatter — no trendline (decision confirmed against the DEP2 quartile analysis)
+
+**TL;DR:** Raw points, no LOESS or `lm` overlay. The DEP2 Section 3.3 quartile analysis shows the income–bite-rate relationship is heterogeneous across income strata (Spearman ρ ranges from −0.30 in Q1 to −0.75 in Q3, then back to −0.67 in Q4), so a single fitted curve would oversell a uniform relationship that does not exist.
+
+**Choice:** `mode = "markers"` only. No `add_trace` for a smoother. Confirmed with Echo at the start of the build (AskUserQuestion: "No trendline" was the recommended default, accepted).
+
+**Why this is defensible:** Adding a smoother makes a visual claim about the *shape* of the relationship across the entire x-axis. DEP2's quartile-faceted scatter (Figure 10) shows that the slope is much steeper in Q3 than in Q1 — meaning a single LOESS through the pooled cloud would average over genuinely different sub-relationships and visually flatten what the data actually says. Leaving the points raw means the reader's eye does the integration; the narrative below the chart explicitly names that the relationship is "real but loose."
+
+**Why a comparison view wasn't built:** Unlike the Tab 2 simple-vs-rich tooltip exercise (where building both and judging side-by-side resolved a genuine uncertainty), this decision had a documented counter-finding (DEP2 quartile analysis). The trendline would not have survived its first comparison, so building it would have been busywork.
+
+**Reference:** Cleveland, W. S. (1985). *The Elements of Graphing Data.* Also Cairo, A. (2016). *The Truthful Art*, ch. 4 — on smoothers as design claims, not neutral additions.
+
+### Scatter legend — rotated horizontal after the full-width restructure
+
+**TL;DR:** Default plotly legend (vertical, right side) didn't fit the full-width scatter — borough names ran into the chart. Rotated to `orientation = "h", x = 0, y = 1.12` across the top, with `margin = list(t = 70, ...)` to make room.
+
+**Choice:** `legend = list(title = list(text = "Borough"), orientation = "h", x = 0, y = 1.12)`. Top margin increased from `t = 30` (Tab 2 convention) to `t = 70` to clear the legend.
+
+**Why:** A vertical right-side legend works on Tab 2 because the borough names are short and the chart is in a `mainPanel(width = 9)` with breathing room to the right. On Tab 4's full-width scatter, the chart fills 12 columns and a right-side legend pushes the income axis ticks into the marker cluster — re-creating the overlap problem that the restructure was specifically meant to fix. A horizontal legend across the top puts all five borough swatches in one row, leaves the entire chart area free for the data, and keeps the colour key in the reader's eye-path before they scan the points.
+
+**Reference:** Plotly.R reference, layout > legend: https://plotly.com/r/reference/#layout-legend. Cleveland (1985) on legend placement — locate the key on the side of the chart with the least data density; for a high-income / low-bite plot, that's the top.
+
+### Scatter data — `st_drop_geometry()` + NA filter + prebuilt tooltip at startup
+
+**TL;DR:** `tab4_scatter_data` is built once at module scope, not inside `renderPlotly`. Three operations: drop geometry, filter NA on income and bite_rate, pre-build the per-row tooltip string. Same split-phase pattern as Tab 2 `yoy_label` and Tab 3 `tab3_polygon_labels`.
+
+**Choice:**
+```r
+tab4_scatter_data <- master_filtered |>
+  sf::st_drop_geometry() |>
+  dplyr::filter(!is.na(median_income), !is.na(bite_rate)) |>
+  dplyr::mutate(tooltip_text = paste0("<b>ZIP ", zipcode, "</b><br>", ...))
+```
+
+**Why three things at startup, not in the reactive:**
+
+1. **`st_drop_geometry()`**: plotly does not need polygon geometries to draw scatter points — only the attribute columns. Without the drop, plotly would serialise all 182 MULTIPOLYGON features into the JSON it ships to the browser. Dropping geometry up front is the standard sf-to-plot_ly idiom and keeps the page weight low.
+2. **NA filter on both axes**: a scatter point at `(NA, y)` or `(x, NA)` renders nothing but still appears in the legend's per-trace count. Dropping NA rows up front keeps the borough counts honest. ZCTAs with NA values still appear on the *map* in the `na.color` grey, so they are not hidden from the reader — they are simply allocated to the view that can honestly show them.
+3. **Pre-built `tooltip_text`**: same justification as Tab 2's `yoy_label` and Tab 3's polygon labels. `master_filtered` is static for the life of the R session, so rebuilding tooltip strings on every render is wasted work; pre-building means plotly just reads the strings verbatim.
+
+**Reference:** Joe Cheng's *split-phase reactivity* principle — perform all static work at startup, leave the reactive doing only the work that depends on user input. Tab 4 has no user input on the scatter, so the reactive does effectively no data work at all.
+
+### NA handling — shown on the map, dropped from the scatter
+
+**TL;DR:** The same ZCTAs that have NA bite rate (those with `total_dogs == 0`) appear on the map as `#EEEEEE` "No data" patches and in the legend's `na.label`. They are dropped from the scatter via `filter(!is.na(...))` so per-borough marker counts stay honest. The reader still sees them; they're just rendered in the view that can honestly show "no rate computable."
+
+**Choice:** Two-view division of labour — the choropleth is honest about absence (greyed out + named in legend), the scatter is honest about *measured* relationships (only ZCTAs with a real x and a real y).
+
+**Why this is the right split:** Putting NA ZCTAs on the scatter (e.g., at `(median_income, 0)`) would visually claim "zero bite rate in this neighbourhood" — which is wrong; the bite rate is *undefined*, not zero. The map's `na.color` grey is the leaflet idiom for unmeasurable, and `na.label = "No data"` in the legend documents the convention without forcing the reader to infer it. Dropping NAs from the scatter is then the *only* honest move once the map has accounted for them.
+
+**Implementation detail:** `addLegend(..., na.label = "No data")` adds a small grey swatch labelled "No data" below the rocket gradient, so the handful of zero-dog ZCTAs are explained in the legend rather than appearing as unaccounted-for grey patches.
+
+### Bite_rate not sqrt-transformed — unlike `dog_density`
+
+**TL;DR:** Tab 3 uses `sqrt(dog_density)` because density is right-skewed (a handful of Manhattan ZCTAs dominate). `bite_rate` is bounded by a meaningful zero and the per-1,000 normalisation, so its distribution sits closer to linear. No transform; legend reads in native units.
+
+**Choice:** `pal_bites <- colorNumeric(palette = rocket(256, direction = -1), domain = master_filtered$bite_rate)` — `domain` is the raw vector, not `sqrt(...)`.
+
+**Why this is consistent with Tab 3 rather than a contradiction:** Cleveland's sqrt-transform rule applies when an unbounded right-skewed distribution would burn most of a colour ramp on the upper tail. `dog_density` is such a variable (no upper bound; a few extreme ZCTAs). `bite_rate` has a per-1,000 normalisation that pulls its empirical range in (DEP2 appendix: medians 43.9 in Manhattan to 156.0 in the Bronx — a 4× ratio, not the 10×+ ratio that `dog_density` shows). A linear mapping fits the empirical distribution well enough that the back-transform machinery would be ceremony.
+
+**Trade-off acknowledged:** The two tabs use different scale treatments for visually similar-looking choropleths. The Important-context callout on Tab 4 does not currently name this. Worth a sentence if the report calls it out as an inconsistency, but the per-variable justification is documented here.
+
+**Reference:** Cleveland, W. S. (1985). *The Elements of Graphing Data*. Wadsworth.
 
 ---
 
@@ -433,11 +570,23 @@ Reverse-chronological — most recent first.
 
 *Pending — to be populated when this tab is built.*
 
+**Source of truth for this tab:** DEP2_ZHAOWANTING-35507071.pdf, Section 2.1 (dataset URLs + access details) and Section 5 (AI-tool declaration). Six datasets to list:
+
+1. NYC Dog Licensing Dataset (NYC DOHMH) — https://data.cityofnewyork.us/Health/NYC-Dog-Licensing-Dataset/nu7n-tubp
+2. DOHMH Dog Bite Data (NYC DOHMH) — https://data.cityofnewyork.us/Health/DOHMH-Dog-Bite-Data/rsgh-akpg
+3. NYC Dog Runs and Off-Leash Areas (NYC Parks) — https://catalog.data.gov/dataset/dogruns-20190417
+4. ACS Median Household Income by ZCTA (US Census, variable B19013_001, 2018–2022 5-year estimates) — accessed via `tidycensus::get_acs()`.
+5. NYC ZCTA Boundaries (US Census TIGER/Line) — accessed via `tigris::zctas(cb = TRUE, year = 2020)`.
+6. NYC Borough Population Estimates (US Census ACS 1-year, variable B01003_001, 2016–2018, 2022, 2023) — accessed via `tidycensus::get_acs(geography = "county", survey = "acs1")`.
+
+**Project GitHub:** https://github.com/EchoZhao1998/NYC_dog_neighbour
+
+**Open decisions before building:** see HANDOVER → *Open decisions for next session*.
+
 ---
 
 ## Open items for next session
 
-- **Tab 4 (Safety) narrative** — confirm Tab 2 / Tab 3 house style applies, or call out a deliberate departure. Open sub-question: whether Tab 4 also wants a sentence-level insight near the heading *in addition to* the below-views reflection block (per the original handover note).
-- **Tab 4 (Safety) build** — bite-rate choropleth (rocket palette, reversed; full pattern mirrors Tab 3) + income-vs-bite-rate plotly scatter coloured by borough. Reuses the Tab 3 leafletProxy idiom and the Tab 2 plot_ly idiom.
-- **Tab 5 (About)** — data sources listed with URLs, how-to-use the app, student credit + copyright line.
-- **Final verification pass** — clean R session, end-to-end run, tab navigation, hover/filter responsiveness, palette consistency. Exclude `.Rproj.user/` when zipping.
+- **Tab 5 (About) build** — single-column layout with `<h2>`-headed sections (*Data sources*, *How to use this app*, *Credits & acknowledgements*, *AI declaration*) is the simplest defensible default. Six dataset URLs to list. AI declaration ported from DEP2 Section 5 (verbatim or paraphrased — Echo's call).
+- **Quick polish items** (logged in HANDOVER): Tab 1 line 591 double period; Tab 3 line 778 sentence-fragment in dog-density gloss; Tab 4 line 1006 `<h3>` form inconsistency vs Tabs 2/3.
+- **Final verification pass** — clean R session, end-to-end run, tab navigation, hover/filter responsiveness, palette consistency, scatter hover targets on the full-width scatter (the whole point of the restructure). Exclude `.Rproj.user/` when zipping.
