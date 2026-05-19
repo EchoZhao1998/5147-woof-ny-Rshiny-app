@@ -17,7 +17,7 @@ I am **Wanting (Echo) Zhao**, Student ID 35507071, FIT5147 S1 2026, Monash Unive
 ## What we're building
 **"Woof! 🐾 New York"** — a 5-tab R Shiny narrative visualisation for NYC residents who own a dog or are considering getting one. Tells three stories: how bite incidents shifted around COVID, where the off-leash-infrastructure gap is widest, and how bite rate relates to neighbourhood income.
 
-Sheet 5 specification: `/Users/ez_us/Documents/5147/DVP/DVP1to2handover.md`, layout mockups in `/Users/ez_us/Documents/5147/DVP/DVP2_UI.pdf` (6 pages, one per tab).
+Sheet 5 specification: `/Users/ez_us/Documents/5147/DVP/DVP1to2handover.md`, layout mockups in `/Users/ez_us/Documents/5147/DVP/DVP2_UI.pdf` (6 pages, one per tab).One new layout mockup in `/Users/ez_us/Documents/5147/DVP/woof_ny_app/Safety_new.png` to align with current `app.R` code.
 
 R environment: R 4.5.2, single-file `app.R`. Packages: shiny, sf, dplyr, readr, leaflet, plotly, ggplot2. No tidyverse.
 
@@ -65,23 +65,20 @@ DEP reference material (read-only; do not modify):
 - [x] **Tab 4 (Safety)** fully built: hero "Does where you live shape how safe it is?". **Two-row layout** (Echo's restructure on 2026-05-19 replaced the initial 7/5 single-row design): **Row 1** is a 7/5 split — `leafletOutput("tab4_map", height = "500px")` on the left, a *map-specific* narrative block on the right (`<h3>` "What this map suggests?" + 3 short paragraphs + a `<h4>` "Before moving down" prompt). **Row 2** is a full-width `plotlyOutput("tab4_scatter", height = "500px")` — the scatter was moved out of row 1 because the 5-column variant overlapped dots in the high-income / low-bite cluster and hover targets were too small. **Map**: single `renderLeaflet` (no toggle, so no `leafletProxy` split), `pal_bites = colorNumeric(viridisLite::rocket(256, direction = -1))` so dark red = high bite rate, white hairline borders, `fillOpacity = 0.7`, `na.color = "#EEEEEE"` + `na.label = "No data"` on the legend, `tab4_polygon_labels` (ZIP / borough / bite rate / cumulative-2016–2023 qualifier / median income). **Scatter**: native `plot_ly`, `mode = "markers"`, `color = ~borough` with `colors = borough_colours`, 0.5px white halo around each marker (Cleveland overplotting fix), `tickformat = "$,d"` on x, `rangemode = "tozero"` on y, **legend rotated horizontal** above the chart (`orientation = "h", x = 0, y = 1.12`, top margin bumped to `t = 70`) because the full-width canvas left no room for a side legend. No trendline — confirmed design call, see *Open decisions* below. Bottom reflection block follows the house style: `<h3>` lead + paragraph (scatter-only now that the map has its own narrative beside it) + *Key takeaway* / *Important context* / *Continue exploring* with hand-off into Infrastructure and Trends. **`tab4_scatter_data`** is pre-built once at startup: `st_drop_geometry()` (so plotly does not serialise 182 MULTIPOLYGONs into the page JSON) + `filter(!is.na(median_income), !is.na(bite_rate))` (NA ZCTAs stay on the map as grey "No data"; they're dropped from the scatter to keep per-borough marker counts honest) + a pre-built `tooltip_text` string.
 
 ## What's left
-- [ ] **Tab 5 (About)** — data sources listed with URLs (six datasets from DEP2 Section 2.1: Dog Licensing, Dog Bite, Dog Runs, ACS Income, TIGER/Line ZCTA boundaries, ACS Borough Population), how-to-use the app, student credit + AI-tool declaration mirroring DEP2 Section 5, GitHub repo link (`https://github.com/EchoZhao1998/NYC_dog_neighbour`).
+- [ ] **Tab 5 (About)** — data sources listed with URLs (six datasets from DEP2 Section 2.1: Dog Licensing, Dog Bite, Dog Runs, ACS Income, TIGER/Line ZCTA boundaries, ACS Borough Population), how-to-use the app, student credit + AI-tool declaration mirroring DEP2 Section 5, GitHub repo link (DEP:`https://github.com/EchoZhao1998/NYC_dog_neighbour`, DVP:`https://github.com/EchoZhao1998/5147-woof-ny-Rshiny-app`).
 - [ ] **Final verification pass** — clean R session, run end-to-end, check tab navigation / hover tooltips / filter responsiveness / palette consistency. Exclude `.Rproj.user/` when zipping for submission.
 
-## Quick polish items to spot-check before submission
-
-Caught during the 2026-05-19 review of Echo's restructured app — small, low-risk fixes:
-
-- **Tab 1, line 591** — double period: `"The same colour always means the same borough.."` → strip the trailing dot.
-- **Tab 3, line 778** — sentence fragment in the Dog-density gloss: `"(where licensed dogs out of 1000m²)"` reads as a missing verb. Original phrasing was `"(where licensed dogs are concentrated)"`; suggested replacement: `"(licensed dogs per square kilometre)"`.
-- **Tab 4, line 1006** — heading inconsistency: `"What this view reveals?"` ends with a question mark, but Tabs 2 and 3 now use the declarative form (`"What this chart tells us"`, `"What this map tells us"`). Suggest matching the pattern, e.g. `"What this view tells us"`.
 
 ## Open decisions for next session
 
 - **Tab 5 (About) layout** — single `fluidPage` column? Two-column (left: data sources list with URLs; right: how-to-use guide + credits)? `tabsetPanel` nested inside the tab? The simplest defensible default is a single column with `<h2>`-headed sections: *Data sources* → *How to use this app* → *Credits & acknowledgements* → *AI declaration*. Confirm before building.
+> Notes: about the *AI declaration*. I think it only should in my DVP2 report? please ensure it in  `/Users/ez_us/Documents/5147/DVP/FIT5147_DataVisualisationProject S1 2026.pdf` if needed.
+> *How to use this app*. If I put it at `about` page. I am concern about if it makes sence. because audience firstly in your `introduction` tab. And I think my narration on that page as well as following ones already guide them how to use. so I'd like think twice with you. 
 - **Data-source listing format** — six datasets from DEP2 Section 2.1. Options: (a) bulleted list with bold dataset name + agency + URL; (b) HTML `<dl>` definition list; (c) styled table. Bulleted list is the lightest weight and matches the rest of the app's rhythm.
 - **AI-tool declaration scope** — DEP2's declaration (Section 5) covers Claude as a tutoring aid plus ChatGPT/Grammarly for language refinement. Decide whether to port the declaration verbatim or paraphrase. Echo's call.
+> if must declare here, I prefer write `co-work with Claude ai`
 - **Logo / Woof! branding on the About tab** — none currently in the app. Optional: a single SVG paw mark beside the title block. Trade-off is an external asset in the submission zip vs. zero risk of a missing-file error. Default: skip unless Echo wants the visual lift.
+> I think current version is acceptable. once I run the app. it show like emoji "🐾". You can have a better suggestion if I need design with third-party tools.
 
 ## How to resume — first message to the new chat
 
