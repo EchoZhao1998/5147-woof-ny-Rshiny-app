@@ -536,11 +536,18 @@ body {
   color: #E69F00;
   line-height: 1.1;
 }
-.kpi-label {
-  font-size: 1.2rem;
-  color: #525252;
-  margin-top: 0.4rem;
-}
+  .kpi-label {
+    font-size: 1.2rem;
+    color: #525252;
+    margin-top: 0.4rem;
+  }
+
+  .source-note {
+    font-size: 12px;
+    color: #737373;
+    font-style: italic;
+    margin-top: 0.5rem;
+  }
 "
 
 
@@ -588,7 +595,11 @@ ui <- navbarPage(
               tags$li(strong("About"), " — data sources and credits.")
             ),
             p(em("Tip:"), " hover over any map polygon or chart point for ",
-              "details. The same colour always means the same borough.")
+              "details. The same colour always means the same borough."),
+            div(
+              class = "source-note",
+              "Built using public NYC dog licensing, bite, parks, income, and Census datasets. Full details appear in About."
+            )
           )
         ),
         column(
@@ -642,7 +653,11 @@ ui <- navbarPage(
         class = "intro-narrative",
         p("Annual reported dog-bite incidents by borough, 2016-2023. ",
           "Use the checkboxes on the left to isolate boroughs and compare ",
-          "the COVID-era dip with the post-2022 recovery.")
+          "the COVID-era dip with the post-2022 recovery."),
+        div(
+          class = "source-note",
+          "Source: NYC DOHMH Dog Bite Data (2016–2023)."
+        )
       ),
 
       sidebarLayout(
@@ -786,6 +801,10 @@ ui <- navbarPage(
           "Click the green dot to see details of each park",
           br(),
           "Hover over a ZIP code to explore local conditions and compare neighbourhood patterns across the city."
+        ),
+        div(
+          class = "source-note",
+          "Combines NYC Dog Licensing data and NYC Parks off-leash run datasets (2022 snapshot)."
         )
       ),
 
@@ -929,6 +948,10 @@ ui <- navbarPage(
         p(
           "Hover any ZIP code on the map, or any point on the scatter, ",
           "to see the underlying numbers."
+        ),
+        div(
+          class = "source-note",
+          "Combines NYC DOHMH Dog Bite reports (2016–2023), ACS income estimates, and NYC licensing data."
         )
       ),
 
@@ -951,7 +974,7 @@ ui <- navbarPage(
             class = "intro-narrative",
 
             tags$h3(
-              "What this map tell us?",
+              "What this map tell us",
               style = "margin-top: 0;"
             ),
 
@@ -1003,7 +1026,7 @@ ui <- navbarPage(
       div(
         class = "intro-narrative",
         tags$h3(
-          "What this view tells us?",
+          "What this view tells us",
           style = "margin-top: 1rem; margin-bottom: 0.5rem;"
         ),
 
@@ -1115,11 +1138,6 @@ ui <- navbarPage(
           "for anyone in their household curious about how dog life ",
           "varies across the city."
         ),
-        p(
-          "The project began as a Data Exploration Project (DEP) for ",
-          "FIT5147 in Semester 1, 2026, and was rebuilt as this five-tab ",
-          "R Shiny app for the Data Visualisation Project."
-        ),
 
         # ----- Data sources -----
         # Bulleted list (not <dl> or a table) to match the rhythm of the
@@ -1130,15 +1148,11 @@ ui <- navbarPage(
         # labels.
         tags$h3("Data sources"),
         p(
-          "All five datasets are openly accessible and were retrieved ",
-          "between March and May 2026."
+          "All five datasets are openly accessible. ",
         ),
         tags$ul(
           tags$li(
-            strong("Dataset — NYC Dog Licensing Dataset"),
-            " (NYC Department of Health and Mental Hygiene). Annual ",
-            "licence-transaction extracts for 2016, 2017, 2018, 2022, ",
-            "and 2023. ",
+            "- NYC Dog Licensing Dataset (NYC DOHMH)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Health/NYC-Dog-Licensing-Dataset/nu7n-tubp",
               target = "_blank",
@@ -1147,9 +1161,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            strong("Dataset — DOHMH Dog Bite Data"),
-            " (NYC Department of Health and Mental Hygiene). ",
-            "Incident-level reports of dog bites across 2016–2023. ",
+            "- DOHMH Dog Bite Data (NYC DOHMH)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Health/DOHMH-Dog-Bite-Data/rsgh-akpg",
               target = "_blank",
@@ -1158,9 +1170,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            strong("Dataset — NYC Dog Runs and Off-Leash Areas"),
-            " (NYC Parks Department). 91 official off-leash run polygons ",
-            "in WKT geometry. ",
+            "- NYC Dog Runs and Off-Leash Areas (NYC Parks)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Recreation/Dog-Runs/hxx3-bwgv/about_data",
               target = "_blank",
@@ -1169,10 +1179,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            strong("Dataset — Median Household Income by ZCTA"),
-            " (US Census Bureau, American Community Survey 5-year ",
-            "estimates, 2018–2022). Accessed programmatically via the ",
-            "R ", tags$code("tidycensus"), " package. ",
+            "- ACS Median Household Income Estimates (2018–2022)",
             tags$a(
               href   = "https://www.census.gov/programs-surveys/acs",
               target = "_blank",
@@ -1181,10 +1188,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            strong("Dataset — TIGER/Line ZCTA Boundaries"),
-            " (US Census Bureau, 2020). 182 NYC ZCTA polygons used as the ",
-            "spatial framework for every choropleth in the app. Accessed ",
-            "via the R ", tags$code("tigris"), " package. ",
+            "- TIGER/Line ZCTA Boundaries (2020)",
             tags$a(
               href   = "https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html",
               target = "_blank",
@@ -1202,22 +1206,11 @@ ui <- navbarPage(
         # "Tools used:" footer line that DEP2 carries at the bottom of every
         # page (so a marker familiar with the report sees the same
         # provenance pattern).
-        tags$h3("Credit"),
+        tags$h3("Credits"),
         p(
           "Created by ", strong("Wanting (Echo) Zhao"),
           " for Data Visualisation Project",
         ),
-        # p(
-        #   "Implemented in R 4.5.2 using ",
-        #   tags$code("shiny"), ", ",
-        #   tags$code("sf"), ", ",
-        #   tags$code("dplyr"), ", ",
-        #   tags$code("readr"), ", ",
-        #   tags$code("leaflet"), ", ",
-        #   tags$code("plotly"), ", ",
-        #   tags$code("ggplot2"), ", and ",
-        #   tags$code("viridisLite"), "."
-        # ),
 
         # ----- Source code -----
         # Two GitHub repos: the DEP exploration repo (where the wrangling
@@ -1252,22 +1245,10 @@ ui <- navbarPage(
         # 2011), which we use across every borough-coloured view.
         tags$h3("Acknowledgements"),
         p(
-          "Thank you for ", strong("Sarah Goodwin, Michael Niemann,"),
-          strong("Ting Chai Wen, Ashwini Narasimhan, Mohit Gupta,"),
-          " and FIT5147 Data Visualisation Project teaching team"
+          "Developed for FIT5147 Data Visualisation Project at Monash University.",
+          "Special thanks to the FIT5147 teaching team for feedback and guidance."
         ),
 
-        # p(
-        #   "Thanks to ", strong("NYC Open Data"), ", the ",
-        #   strong("NYC Department of Health and Mental Hygiene"), ", the ",
-        #   strong("NYC Parks Department"), ", and the ",
-        #   strong("US Census Bureau"), " for keeping these datasets ",
-        #   "openly accessible. The borough colour palette is the ",
-        #   "Okabe-Ito (2008) Color Universal Design scheme, cited via Wong, ",
-        #   em("Nature Methods"), " 8, 441 (2011) - chosen so the five ",
-        #   "boroughs remain distinguishable to readers with red-green ",
-        #   "colour vision deficiency."
-        # ),
 
         # ----- Footer (AI declaration pointer + copyright) -----
         # Two stacked <small> lines, separated from the main content by an
@@ -1277,14 +1258,9 @@ ui <- navbarPage(
         # transparent breadcrumb pointing the marker at where the full
         # declaration lives. The copyright line is at Echo's request.
         tags$hr(),
-        # tags$small(
-        #   style = "color: #525252; display: block; margin-bottom: 0.25rem;",
-        #   "A full Generative AI declaration is included at the end of the ",
-        #   "accompanying Part 2 report, as required by the FIT5147 brief."
-        # ),
         tags$small(
           style = "color: #525252; display: block;",
-          "© 2026 Wanting (Echo) Zhao. All rights reserved."
+          paste0("©", format(Sys.Date(), "%Y"), " Wanting (Echo) Zhao. All rights reserved.")
         )
       ),
       br()
