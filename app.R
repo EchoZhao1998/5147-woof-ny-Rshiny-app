@@ -509,8 +509,9 @@ body {
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
 .navbar-default .navbar-nav > .active > a:hover {
-  background-color: #F5C896 !important;
-  color: #1F2933 !important;
+  background-color: #E69F00 !important;
+  color: #FFFFFF !important;
+  font-weight: 700;
 }
 .intro-heading {
   font-size: 3rem;
@@ -557,6 +558,13 @@ body {
     font-style: italic;
     margin-top: 0.5rem;
   }
+
+  a:focus,
+  button:focus,
+  .leaflet-interactive:focus {
+    outline: 3px solid #0072B2 !important;
+    outline-offset: 2px;
+    }
 "
 
 
@@ -1161,7 +1169,7 @@ ui <- navbarPage(
         ),
         tags$ul(
           tags$li(
-            "- NYC Dog Licensing Dataset (NYC DOHMH)",
+            "NYC Dog Licensing Dataset (NYC DOHMH)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Health/NYC-Dog-Licensing-Dataset/nu7n-tubp",
               target = "_blank",
@@ -1170,7 +1178,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            "- DOHMH Dog Bite Data (NYC DOHMH)",
+            "DOHMH Dog Bite Data (NYC DOHMH)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Health/DOHMH-Dog-Bite-Data/rsgh-akpg",
               target = "_blank",
@@ -1179,7 +1187,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            "- NYC Dog Runs and Off-Leash Areas (NYC Parks)",
+            "NYC Dog Runs and Off-Leash Areas (NYC Parks)",
             tags$a(
               href   = "https://data.cityofnewyork.us/Recreation/Dog-Runs/hxx3-bwgv/about_data",
               target = "_blank",
@@ -1188,7 +1196,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            "- ACS Median Household Income Estimates (2018–2022)",
+            "ACS Median Household Income Estimates (2018–2022)",
             tags$a(
               href   = "https://www.census.gov/programs-surveys/acs",
               target = "_blank",
@@ -1197,7 +1205,7 @@ ui <- navbarPage(
             )
           ),
           tags$li(
-            "- TIGER/Line ZCTA Boundaries (2020)",
+            "TIGER/Line ZCTA Boundaries (2020)",
             tags$a(
               href   = "https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html",
               target = "_blank",
@@ -1501,6 +1509,7 @@ server <- function(input, output, session) {
         highlightOptions = highlightOptions(
           weight       = 2,
           color        = "#1F2933",
+          fillOpacity = 0.9,  # Stronger hover feedback on polygons(Accessibility principle: do not communicate interaction only through colour)
           bringToFront = TRUE
         ),
         group = "choropleth"
