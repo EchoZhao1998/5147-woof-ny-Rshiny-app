@@ -492,6 +492,15 @@ body {
   background-color: #FBE3C5 !important;
   border-color: #FBE3C5 !important;
 }
+.navbar {
+  position: fixed !important;
+  top: 0;
+  width: 100%;
+  z-index: 1000;
+}
+body {
+  padding-top: 70px;
+}
 .navbar-default .navbar-brand,
 .navbar-default .navbar-nav > li > a {
   color: #1F2933 !important;
