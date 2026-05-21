@@ -25,7 +25,7 @@ To find a decision: jump to the Build Status table → click the tab section →
 | Tab 2 — Trends | Built | 2026-05-18 | [Tab 2](#tab-2-trends) |
 | Tab 3 — Infrastructure | Built | 2026-05-18 | [Tab 3](#tab-3-infrastructure) |
 | Tab 4 — Safety | Built | 2026-05-19 | [Tab 4](#tab-4-safety) |
-| Tab 5 — About | Pending | — | [Tab 5](#tab-5-about) |
+| Tab 5 — About | Built | 2026-05-21 | [Tab 5](#tab-5-about) |
 
 Open decisions still on the table → [Open items](#open-items-for-next-session).
 
@@ -34,6 +34,25 @@ Open decisions still on the table → [Open items](#open-items-for-next-session)
 ## Session log
 
 Reverse-chronological — most recent first.
+
+### 2026-05-21 — Tab 5 (About) built + app-wide accessibility & navbar pass
+
+**Scope:** Tab 5 (About) built, then trimmed by Echo; app-wide accessibility changes (fixed navbar, keyboard-focus ring, hover-feedback parity); a WCAG contrast correction on the active nav state; and code-hygiene fixes on the trimmed Tab 5.
+
+**Files touched:** `app.R` (CSS section 4; UI Tab 5 replaces the placeholder; Tab 4 server `highlightOptions`), `HANDOVER.md`, `notes_for_report.md`. New file: `tab5_v1.r` (the fuller first-draft Tab 5, parked for reference). Report draft started: `/Users/ez_us/Documents/5147/DVP/wanting_35507071_DVP_report.md`.
+
+**Decisions made this session:**
+
+- **Tab 5 = single-column credits page** — `intro-heading` + one `.intro-narrative` div; the reflection-block house style is deliberately NOT used (no chart to reflect on). Full reasoning in [Tab 5 section](#tab-5-about).
+- **AI declaration lives only in the report** — confirmed against the FIT5147 brief (page 1: "must be clearly declared in your report"; page 8: "at the end of your report"). Echo's instinct confirmed; no declaration text or pointer in the app.
+- **"How to use this app" dropped** — the Introduction tab and the per-tab orienting paragraphs already guide interaction; a how-to on the last tab is redundant.
+- **Five datasets listed, not six** — Dataset F (ACS Borough Population) is in DEP2 Section 2.1 but is not read by the running app (it fed DEP-only borough per-capita ownership trends). Listing it would mislead a marker who follows the URL.
+- **Navbar frozen (`position: fixed`)** — readers can switch tabs after scrolling through a tab's narration; `body { padding-top: 70px }` stops content hiding under the bar. See [Accessibility & layout entry](#app-wide-accessibility--fixed-navbar-focus-ring-contrast-hover-parity).
+- **Keyboard-focus ring added** — `outline: 3px solid #0072B2` on links, buttons, and leaflet shapes; keyboard users previously had no visible focus indicator.
+- **Active nav contrast corrected** — Echo's first pass set white-on-orange (`#FFFFFF` on `#E69F00` = 2.25:1, fails WCAG AA even for bold/large text). Corrected to dark-on-orange (`#1F2933` on `#E69F00` = 6.55:1, passes) while keeping the orange active state; bold weight is retained as a second, non-colour cue.
+- **Hover-feedback parity across both maps** — `fillOpacity = 0.9` on hover now applies to BOTH choropleths (Tabs 3 and 4). Border-weight change is the primary non-colour cue, the opacity bump is a second channel, and the fill HUE is never changed (preserving the colour encoding, Munzner ch.11).
+
+**Code-hygiene fixes (Claude, this session, all confirmed by Echo before applying):** removed two trailing commas inside `p()` calls (base R `list()` rejects trailing commas — a portability risk the brief's "must run on the marker's computer first attempt" rule forbids); refreshed four now-stale Tab 5 comments to match the trimmed code; corrected the Dog Runs link text ("catalog.data.gov" → "data.cityofnewyork.us") to match its `href`; added a space in the copyright ("© 2026").
 
 ### 2026-05-19 — Tab 4 (Safety) built + cross-tab narration polish
 
@@ -207,6 +226,21 @@ Reverse-chronological — most recent first.
 **Why:** Follows the Setup → Visual → Reflection pattern (Segel & Heer 2010) but with sub-headings that let a scanner pick up the key takeaway without reading the prose. Bullet hand-off turns the bottom of each tab into a flow point into the next, supporting the multi-tab narrative arc.
 
 **Reference:** Segel, E. & Heer, J. (2010). Narrative Visualization: Telling Stories with Data. *IEEE TVCG*, 16(6).
+
+### App-wide accessibility — fixed navbar, focus ring, contrast, hover parity
+
+**TL;DR:** Navbar pinned with `position: fixed`; a visible keyboard-focus ring; the active-tab colour corrected to meet WCAG AA contrast; and a two-channel (border + opacity) hover cue on both choropleths.
+
+**What was built (CSS section 4 + map `highlightOptions`):**
+
+- **Fixed navbar** — `.navbar { position: fixed; top: 0; width: 100%; z-index: 1000 }` with `body { padding-top: 70px }`. The bar stays reachable after the reader scrolls through a tab's narration; the body padding stops the first line of content from hiding under the bar.
+- **Keyboard-focus ring** — `a:focus, button:focus, .leaflet-interactive:focus { outline: 3px solid #0072B2; outline-offset: 2px }`. Gives keyboard and switch-device users a visible focus indicator that the default Bootstrap theme suppressed. The blue `#0072B2` is the Manhattan borough colour, so the ring reads as part of the palette rather than a foreign accent.
+- **Active-tab contrast** — the active/hover nav state is orange `#E69F00` with **dark** `#1F2933` text (6.55:1, passes WCAG AA) and bold weight. An earlier white-on-orange pass measured only 2.25:1 (fails even the 3:1 large/bold bar); the dark text keeps the orange brand colour while clearing the contrast threshold, and the bold weight adds a non-colour cue so the active tab is identifiable without relying on hue.
+- **Hover parity on both maps** — `highlightOptions` on the Tab 3 and Tab 4 choropleths now thicken the border to `weight = 2` (`#1F2933`) **and** bump `fillOpacity` to 0.9. The border weight is the primary non-colour cue (interaction is not signalled by colour alone); the opacity bump is a second feedback channel; the fill *hue* is never changed, so the underlying colour encoding is preserved (Munzner ch.11).
+
+**Why:** WCAG 2.1 AA asks for ≥ 4.5:1 contrast on normal text (≥ 3:1 for large/bold) and a visible focus indicator (SC 2.4.7); the Okabe-Ito borough palette (cross-cutting decision above) already addresses colour-vision deficiency, and these changes extend the same accessibility intent to keyboard use and interactive feedback. The "don't communicate interaction through colour alone" principle is why the hover cue leads with a border-weight change rather than a fill recolour.
+
+**Reference:** Web Content Accessibility Guidelines (WCAG) 2.1, success criteria 1.4.3 (Contrast) and 2.4.7 (Focus Visible).
 
 ---
 
@@ -568,25 +602,38 @@ tab4_scatter_data <- master_filtered |>
 
 ## Tab 5: About
 
-*Pending — to be populated when this tab is built.*
+**TL;DR:** Single-column credits page — project blurb, five data sources with links, a one-line credit, source-code repos, a teaching-team acknowledgement, and a dynamic-year copyright. No "How to use" section; no in-app AI declaration.
 
-**Source of truth for this tab:** DEP2_ZHAOWANTING-35507071.pdf, Section 2.1 (dataset URLs + access details) and Section 5 (AI-tool declaration). Six datasets to list:
+**What was built:** An `intro-heading` hero ("About this project") above a single `.intro-narrative` div containing, in order: a one-paragraph project blurb; a **Data sources** `<h3>` with a five-item bulleted list (dataset name + agency + external link); a **Credits** line; a **Source code** list (DEP repo + DVP repo); an **Acknowledgements** note; an `<hr>`; and a `<small>` copyright line with a dynamic year via `format(Sys.Date(), "%Y")`.
+
+**Why these choices:**
+
+- **Single column, no sidebar** — short-form content; a sidebar would leave half the canvas empty.
+- **Reflection-block house style NOT used** — the `<h3>` "What this … tells us" + `<h4>` callout shape carries an interpretive story off a chart. The About tab has no chart, so plain `<h3>` section headings are used instead; reusing the reflection shape here would be cargo-culting a convention.
+- **Five datasets, not six** — A–E only. Dataset F (ACS Borough Population) is in DEP2 Section 2.1 but is unused by the app; listing it would mislead a marker following the URL.
+- **No "How to use this app"** — the Intro tab plus per-tab orienting paragraphs already guide interaction.
+- **No in-app AI declaration** — the FIT5147 brief requires it "at the end of your report", not in the app (source of truth: brief pages 1 and 8).
+
+**Source of truth:** DEP2_ZHAOWANTING-35507071.pdf Section 2.1 (dataset URLs). The Dog Runs link was updated from the DEP2 `catalog.data.gov` URL to the NYC Open Data record `data.cityofnewyork.us/Recreation/Dog-Runs/hxx3-bwgv/about_data`.
+
+**External-link hardening:** every `tags$a` uses `target = "_blank"` (opens in a new tab so the user keeps their place in the app) and `rel = "noopener noreferrer"` (prevents tabnabbing, strips the Referer header).
+
+**Five datasets listed (live in the app):**
 
 1. NYC Dog Licensing Dataset (NYC DOHMH) — https://data.cityofnewyork.us/Health/NYC-Dog-Licensing-Dataset/nu7n-tubp
 2. DOHMH Dog Bite Data (NYC DOHMH) — https://data.cityofnewyork.us/Health/DOHMH-Dog-Bite-Data/rsgh-akpg
-3. NYC Dog Runs and Off-Leash Areas (NYC Parks) — https://catalog.data.gov/dataset/dogruns-20190417
-4. ACS Median Household Income by ZCTA (US Census, variable B19013_001, 2018–2022 5-year estimates) — accessed via `tidycensus::get_acs()`.
-5. NYC ZCTA Boundaries (US Census TIGER/Line) — accessed via `tigris::zctas(cb = TRUE, year = 2020)`.
-6. NYC Borough Population Estimates (US Census ACS 1-year, variable B01003_001, 2016–2018, 2022, 2023) — accessed via `tidycensus::get_acs(geography = "county", survey = "acs1")`.
+3. NYC Dog Runs and Off-Leash Areas (NYC Parks) — https://data.cityofnewyork.us/Recreation/Dog-Runs/hxx3-bwgv/about_data
+4. ACS Median Household Income Estimates (2018–2022) — https://www.census.gov/programs-surveys/acs
+5. TIGER/Line ZCTA Boundaries (2020) — https://www.census.gov/geographies/mapping-files/time-series/geo/tiger-line-file.html
 
-**Project GitHub:** https://github.com/EchoZhao1998/NYC_dog_neighbour
+**Parked alternative:** the fuller first draft (DEP-origin paragraph, per-dataset descriptions, full credits with the R-package list, agency thanks + Wong 2011 palette citation) lives in `tab5_v1.r` for reference, in case any of it is wanted back.
 
-**Open decisions before building:** see HANDOVER → *Open decisions for next session*.
+**GitHub repos linked:** DEP — https://github.com/EchoZhao1998/NYC_dog_neighbour ; DVP — https://github.com/EchoZhao1998/5147-woof-ny-Rshiny-app
 
 ---
 
 ## Open items for next session
 
-- **Tab 5 (About) build** — single-column layout with `<h2>`-headed sections (*Data sources*, *How to use this app*, *Credits & acknowledgements*, *AI declaration*) is the simplest defensible default. Six dataset URLs to list. AI declaration ported from DEP2 Section 5 (verbatim or paraphrased — Echo's call).
+- **Report draft** — now the active workstream. Draft started at `/Users/ez_us/Documents/5147/DVP/wanting_35507071_DVP_report.md`. This log (Sections *Design Process* and *Implementation*) is the source material to paraphrase into it.
 - **Quick polish items** (logged in HANDOVER): Tab 1 line 591 double period; Tab 3 line 778 sentence-fragment in dog-density gloss; Tab 4 line 1006 `<h3>` form inconsistency vs Tabs 2/3.
-- **Final verification pass** — clean R session, end-to-end run, tab navigation, hover/filter responsiveness, palette consistency, scatter hover targets on the full-width scatter (the whole point of the restructure). Exclude `.Rproj.user/` when zipping.
+- **Final verification pass** — clean R session, end-to-end run, tab navigation, hover/filter responsiveness, palette consistency, scatter hover targets on the full-width scatter (the whole point of the restructure). Confirm the five Tab 5 dataset links open and don't 404. Exclude `.Rproj.user/` when zipping.

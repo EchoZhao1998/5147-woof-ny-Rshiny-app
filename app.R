@@ -509,8 +509,13 @@ body {
 .navbar-default .navbar-nav > .active > a,
 .navbar-default .navbar-nav > .active > a:focus,
 .navbar-default .navbar-nav > .active > a:hover {
+  /* Orange active/hover state. Text is dark #1F2933, NOT white: dark-on-
+     #E69F00 measures 6.55:1 (passes WCAG AA), whereas white-on-#E69F00 is
+     only 2.25:1 (fails even the 3:1 large/bold-text bar). Bold weight adds
+     a second, non-colour cue so the active tab is distinguishable without
+     relying on hue alone. */
   background-color: #E69F00 !important;
-  color: #FFFFFF !important;
+  color: #1F2933 !important;
   font-weight: 700;
 }
 .intro-heading {
@@ -1143,9 +1148,9 @@ ui <- navbarPage(
         class = "intro-narrative",
 
         # ----- Opening paragraph -----
-        # One short paragraph: what Woof! NY is, who it's for, what data
-        # window, and its origin as a DEP. Mirrors the framing from the
-        # Introduction tab without duplicating its narrative verbatim.
+        # One short paragraph: what Woof! NY is, who it's for, and the data
+        # window. Mirrors the framing from the Introduction tab without
+        # duplicating its narrative verbatim.
         p(
           strong("Woof! New York"), " is an interactive narrative ",
           "visualisation of dog ownership, off-leash infrastructure, ",
@@ -1158,14 +1163,14 @@ ui <- navbarPage(
 
         # ----- Data sources -----
         # Bulleted list (not <dl> or a table) to match the rhythm of the
-        # bulleted list at the bottom of Tab 1's narrative. Dataset name +
-        # agency in parentheses, then a one-sentence description, then the
-        # link. The dataset letters (A-E) match DEP2 Section 2.1 so a
-        # marker cross-referencing the report and the app sees the same
-        # labels.
+        # bulleted list at the bottom of Tab 1's narrative. Each item is the
+        # dataset name + source agency in parentheses, followed by a link to
+        # the source. Five datasets (A-E in DEP2 Section 2.1); Dataset F
+        # (ACS Borough Population) is excluded because the running app never
+        # reads it - see the note at the top of this tabPanel.
         tags$h3("Data sources"),
         p(
-          "All five datasets are openly accessible. ",
+          "All five datasets are openly accessible."
         ),
         tags$ul(
           tags$li(
@@ -1192,7 +1197,7 @@ ui <- navbarPage(
               href   = "https://data.cityofnewyork.us/Recreation/Dog-Runs/hxx3-bwgv/about_data",
               target = "_blank",
               rel    = "noopener noreferrer",
-              "catalog.data.gov"
+              "data.cityofnewyork.us"
             )
           ),
           tags$li(
@@ -1216,17 +1221,15 @@ ui <- navbarPage(
         ),
 
         # ----- Credits -----
-        # Two short paragraphs. The first carries author, student ID, unit,
-        # institution, and teaching associates - the same identity block
-        # that appears at the top of app.R but presented in a reader-
-        # friendly sentence. The second names the R packages, mirroring the
-        # "Tools used:" footer line that DEP2 carries at the bottom of every
-        # page (so a marker familiar with the report sees the same
-        # provenance pattern).
+        # One short line naming the author and the assessment. The full
+        # identity block (student ID, teaching associates, R packages) lives
+        # in the report and in the app.R header comment, so it is not
+        # repeated here - this keeps the About tab reading as a credits page
+        # rather than a cover sheet.
         tags$h3("Credits"),
         p(
           "Created by ", strong("Wanting (Echo) Zhao"),
-          " for Data Visualisation Project",
+          " for Data Visualisation Project"
         ),
 
         # ----- Source code -----
@@ -1256,10 +1259,9 @@ ui <- navbarPage(
         ),
 
         # ----- Acknowledgements -----
-        # Thanks to the agencies that made the data available, plus the one
-        # citation that earns its keep in the running app: Okabe & Ito's
-        # colour-vision-deficiency-safe palette via Wong (Nature Methods
-        # 2011), which we use across every borough-coloured view.
+        # Short note crediting the unit and the teaching team. (Data-source
+        # agencies are already credited in the Data sources section above,
+        # so they are not repeated here.)
         tags$h3("Acknowledgements"),
         p(
           "Developed for FIT5147 Data Visualisation Project at Monash University.",
@@ -1267,17 +1269,18 @@ ui <- navbarPage(
         ),
 
 
-        # ----- Footer (AI declaration pointer + copyright) -----
-        # Two stacked <small> lines, separated from the main content by an
-        # <hr>. The AI declaration line is the one concession to the
-        # FIT5147 brief - the brief (page 8) requires the declaration "at
-        # the end of your report", NOT in the app itself, so this is just a
-        # transparent breadcrumb pointing the marker at where the full
-        # declaration lives. The copyright line is at Echo's request.
+        # ----- Footer (copyright) -----
+        # A single <small> copyright line, separated from the main content
+        # by an <hr>. No AI-declaration text here: the FIT5147 brief (page 8)
+        # requires that declaration "at the end of your report", not in the
+        # app, so it lives only in the report. format(Sys.Date(), "%Y")
+        # prints the current four-digit year, so the notice stays correct
+        # without a hard-coded year to update each session.
         tags$hr(),
         tags$small(
           style = "color: #525252; display: block;",
-          paste0("©", format(Sys.Date(), "%Y"), " Wanting (Echo) Zhao. All rights reserved.")
+          paste0("© ", format(Sys.Date(), "%Y"),
+                 " Wanting (Echo) Zhao. All rights reserved.")
         )
       ),
       br()
@@ -1566,12 +1569,17 @@ server <- function(input, output, session) {
           textsize  = "13px",
           direction = "auto"
         ),
-        # Hover: thicker dark border ONLY. Same Munzner ch.11 reasoning as
-        # Tab 3 - do not mutate the fill on hover, that would destroy the
-        # colour encoding we just established.
+        # Hover: thicker dark border PLUS a fill-opacity bump to 0.9. Matches
+        # the house-style hover added to Tab 3's choropleth - the border
+        # weight is the primary, non-colour cue (so interaction is not
+        # signalled by colour alone, an accessibility principle), and the
+        # opacity bump adds a second channel of feedback. The fill HUE is
+        # left unchanged, preserving the bite-rate colour encoding (Munzner
+        # ch.11: interactive linking should not disrupt the static encoding).
         highlightOptions = highlightOptions(
           weight       = 2,
           color        = "#1F2933",
+          fillOpacity  = 0.9,
           bringToFront = TRUE
         )
       ) |>
