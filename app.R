@@ -1417,7 +1417,7 @@ server <- function(input, output, session) {
       # without cropping Staten Island.
       setView(lng = -73.95, lat = 40.72, zoom = 10) |>
       # Dog-run markers are part of the base layer because they're invariant
-      # across the toggle. Neutral dark dot + white halo: reads cleanly on
+      # across the toggle. Neutral teal dot (#40B0A6) + white halo: reads cleanly on
       # both plasma and viridis backgrounds. We deliberately do NOT colour
       # them by borough - borough is already encoded by the ZCTA underneath
       # (position channel), so adding a colour channel here would be

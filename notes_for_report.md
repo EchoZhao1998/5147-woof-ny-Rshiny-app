@@ -35,6 +35,21 @@ Open decisions still on the table → [Open items](#open-items-for-next-session)
 
 Reverse-chronological — most recent first.
 
+### 2026-05-24 — DVP Part 2 report drafted + showcase PDF built
+
+**Scope:** first full draft of the written report; Section 2 restructured to add a design-process narrative; seven app screenshots embedded in Section 3.2; APA bibliography and AI declaration written; a showcase PDF produced via Pandoc + XeLaTeX; stale marker-colour references corrected across the codebase and docs.
+
+**Files touched:** `wanting_35507071_DVP_report.md` (new full draft), `Wanting_35507071_DVP_report.pdf` (new), `report_build/` (new build files: `build_report.sh`, `header.tex`, `titlepage.tex`, `README.md`), `app.R` (marker comment), `notes_for_report.md`, `HANDOVER.md`.
+
+**Decisions made this session:**
+
+- **Citation style = APA 7th.**
+- **Section 2 = process narrative (2.1) + thematic justification (2.2–2.9).** The brief requires justifying the *process*, not just describing final elements, so 2.1 walks Sheet 1 → Sheet 5 and critiques the rejected alternatives (pie/donut weak for similar proportions per Cleveland; heatmap too legend-heavy for a general audience; income choropleth overloaded the map). Six FdS sheets now go in the Appendix (the sixth = the revised two-row Safety layout, `Wanting_35507071_FdS_0524.pdf`).
+- **Section 3.2 figures = seven screenshots.** Infrastructure and Safety each contribute two figures (toggle states; two rows), which doubles as visual evidence for the two-palette toggle and the two-row redesign.
+- **PDF pipeline = Pandoc + XeLaTeX**, not CSS/Affinity. A transform script lifts the cover into a LaTeX title page, shifts heading levels (`##`→`#`, `###`→`##`), converts image lines to centered `figure[H]` blocks, strips the requirements comment, and pandoc renders with `-f markdown-tex_math_dollars-implicit_figures` (the `-tex_math_dollars` is essential — the report's `$` income figures would otherwise be parsed as math). Build files saved for reuse.
+
+**Correction logged:** the dog-run markers are teal `#40B0A6`, not the dark grey `#1F2933` recorded in earlier notes — the `#1F2933` was carried over from the active-nav/hover-border decisions. Fixed in `app.R`'s comment, this log, and `HANDOVER.md`.
+
 ### 2026-05-21 — Tab 5 (About) built + app-wide accessibility & navbar pass
 
 **Scope:** Tab 5 (About) built, then trimmed by Echo; app-wide accessibility changes (fixed navbar, keyboard-focus ring, hover-feedback parity); a WCAG contrast correction on the active nav state; and code-hygiene fixes on the trimmed Tab 5.
@@ -89,7 +104,7 @@ Reverse-chronological — most recent first.
 - **Time-horizon mismatch (density 2022 vs bite_rate cumulative) acknowledged** — kept as-is rather than recomputed, called out in the Tab 3 Important-context callout and in this log. See [Time-horizon entry](#time-horizon-mismatch--density-2022-vs-bite_rate-cumulative).
 - **`renderLeaflet` + `leafletProxy` pattern** — base map (tiles + view + 91 circle markers) drawn once; observer mutates only the choropleth + legend on toggle. See [Proxy entry](#renderleaflet--leafletproxy-pattern).
 - **CartoDB Positron basemap** — low-contrast tiles so the choropleth carries the colour story. See [Basemap entry](#cartodb-positron-basemap).
-- **Circle markers, not paw icons** — neutral dark dot + white halo. Borough is already encoded by the ZCTA underneath; adding marker colour would be redundant encoding. See [Marker entry](#circle-markers-over-paw-icons--decision-resolved).
+- **Circle markers, not paw icons** — neutral teal dot (`#40B0A6`) + white halo. Borough is already encoded by the ZCTA underneath; adding marker colour would be redundant encoding. See [Marker entry](#circle-markers-over-paw-icons--decision-resolved).
 - **Hover label / click popup split** — polygons use `label` (hover, lightweight context tag), markers use `popup` (click-to-pin for named entities). See [Tooltip entry](#tooltip-design--hover-label-on-polygons-click-popup-on-markers).
 - **Highlight-on-hover changes border only, not fill** — preserves the colour encoding (Munzner ch.11). See [Highlight entry](#highlight-on-hover--border-only-not-fill).
 - **Branch-free observer body** — four metric-specific values bound at the top, then a single `addPolygons + addLegend` call. Less repetition than two duplicated 15-line branches. See [Observer entry](#observer-structure--branch-free-rendering).
@@ -437,11 +452,11 @@ Reverse-chronological — most recent first.
 
 ### Circle markers over paw icons — decision resolved
 
-**TL;DR:** `addCircleMarkers`, neutral dark dot (`#1F2933`), white halo, radius 4. Borough is already encoded by the polygon underneath, so colouring the markers by borough would be redundant.
+**TL;DR:** `addCircleMarkers`, neutral teal dot (`#40B0A6`), white halo, radius 4. Borough is already encoded by the polygon underneath, so colouring the markers by borough would be redundant.
 
 **Choice:** Confirmed circle markers over the DVP2_UI paw-icon variant.
 
-**Why:** The DVP2_UI mockup showed paw-icons, but in the live app these would (a) require an external PNG asset bundled into the project zip, increasing the chance of a missing-file error on the marker's first run; (b) be harder hit-targets in dense run clusters around Central Park; and (c) clash visually against the plasma/viridis fills depending on toggle. Circle markers in a neutral dark grey read cleanly against both palettes, need no external asset, and stay legible at the city-wide zoom level. The marker's job here is *location*, not *iconography* — Munzner: *don't encode what position already encodes*.
+**Why:** The DVP2_UI mockup showed paw-icons, but in the live app these would (a) require an external PNG asset bundled into the project zip, increasing the chance of a missing-file error on the marker's first run; (b) be harder hit-targets in dense run clusters around Central Park; and (c) clash visually against the plasma/viridis fills depending on toggle. Circle markers in a neutral teal (`#40B0A6`) read cleanly against both palettes, need no external asset, and stay legible at the city-wide zoom level. The marker's job here is *location*, not *iconography* — Munzner: *don't encode what position already encodes*.
 
 ### Tooltip design — hover `label` on polygons, click `popup` on markers
 
