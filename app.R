@@ -29,6 +29,19 @@ library(viridisLite)# plasma() + viridis() palette vectors for the Tab 3
 
 
 # ----------------------------------------------------------------------------
+# 1b. STATIC ASSETS — local Lora font files
+# ----------------------------------------------------------------------------
+# Lora (Karpushina, SIL OFL) is bundled inside ./Lora so the typography is
+# reproducible without an internet connection or a Google Fonts CDN call on
+# the marker's machine. addResourcePath() registers the on-disk folder
+# "Lora" as a web-servable path under the URL prefix /lora/, which is what
+# the @font-face url() declarations in the CSS block below reference.
+# Without this line the browser would request /lora/static/Lora-Regular.ttf
+# and Shiny would return 404, silently dropping the font.
+addResourcePath("lora", "Lora")
+
+
+# ----------------------------------------------------------------------------
 # 2. DATA
 # ----------------------------------------------------------------------------
 # Files load ONCE at app start, outside server(). Shiny convention: code
@@ -478,8 +491,47 @@ tab4_scatter_data <- master_filtered |>
 # card styling for the helper in section 3d. Kept inline so every styled
 # element is visible in this single file.
 woof_css <- "
+/* -----------------------------------------------------------------------
+   Lora @font-face (bundled in ./Lora, served via addResourcePath('lora',...)).
+   Four weights covering Regular (body), Medium (subheadings), SemiBold and
+   Bold (display). The .ttf files are the static (non-variable) cuts under
+   Lora/static/ — variable TTF support is patchy across browsers, the static
+   set is universally rendered. font-display: swap lets the browser fall
+   back to Georgia (the next item in the heading stack below) instantly
+   while the .ttf finishes loading, so the page never blanks on slow disks.
+----------------------------------------------------------------------- */
+@font-face {
+  font-family: 'Lora';
+  src: url('/lora/static/Lora-Regular.ttf') format('truetype');
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  src: url('/lora/static/Lora-Medium.ttf') format('truetype');
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  src: url('/lora/static/Lora-SemiBold.ttf') format('truetype');
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: 'Lora';
+  src: url('/lora/static/Lora-Bold.ttf') format('truetype');
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+
 body {
-  /* Futura first (Echo's Mac default) -> Avenir Next as the closest macOS
+  /* HYBRID TYPOGRAPHY (response to tutor feedback on font choice).
+     Body text remains in a humanist sans-serif (Futura family) because at
+     the small sizes used for narrative paragraphs, axis labels, tooltips,
+     and KPI values, a sans-serif renders more clearly on screen than a
+     serif (Bringhurst, 2004; the same reason most digital UIs use sans).
+     Display elements (.intro-heading, h3, h4) are pulled out into Lora —
+     a calligraphic serif designed for screens — to give the narrative
+     headings stronger reading anchors and editorial voice, the same
+     hybrid pattern used by The New York Times and the BBC.
+     Futura first (Echo's Mac default) -> Avenir Next as the closest macOS
      fallback -> Trebuchet MS as the only widely-installed geometric-ish sans
      on Windows -> generic sans-serif as final safety net. */
   font-family: 'Futura', 'Futura PT', 'Avenir Next', 'Avenir',
@@ -519,11 +571,28 @@ body {
   font-weight: 700;
 }
 .intro-heading {
+  /* Hero question on every tab. Lora gives a stronger editorial anchor
+     than the geometric sans, in line with the hybrid typography rationale
+     in body{}. Georgia is the system-font fallback (pre-installed on
+     macOS / Windows / iOS / Android, also screen-optimised — Carter, 1996);
+     Cambria is the Windows-only secondary fallback; generic 'serif' is
+     the final safety net so the marker NEVER sees a sans-serif hero
+     question by accident. */
+  font-family: 'Lora', Georgia, Cambria, 'Times New Roman', serif;
   font-size: 3rem;
   font-weight: 700;
   color: #E69F00;
   margin: 1.5rem 0 1rem 0;
   text-align: center;
+}
+/* Reflection-block headings. <h3> introduces "What this map tells us" and
+   the About-tab section titles ("Data sources", "Credits", etc.); <h4>
+   carries the three callouts ("Key takeaway" / "Important context" /
+   "Continue exploring"). Both are narrative voice, not data labels, so
+   they share the same serif stack as the hero. */
+h3, h4 {
+  font-family: 'Lora', Georgia, Cambria, 'Times New Roman', serif;
+  font-weight: 600;
 }
 .intro-narrative {
   /* 15px (not 14) because Futura has a smaller x-height than Segoe UI, so
