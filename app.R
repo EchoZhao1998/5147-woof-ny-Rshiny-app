@@ -243,6 +243,11 @@ kpi_card <- function(value, label, accent) {
 tab2_apply_layout <- function(p) {
   p |>
     layout(
+      # Force the chart's global font to match the app's Lora cascade.
+      # Plotly otherwise falls back to its own "Open Sans" default, which
+      # would break the single-family typographic discipline used everywhere
+      # else (Section 2.6 in the report).
+      font  = list(family = "'Lora', Georgia, Cambria, serif"),
       xaxis = list(
         title      = "Year",
         tickmode   = "linear",
@@ -522,21 +527,23 @@ woof_css <- "
 }
 
 body {
-  /* HYBRID TYPOGRAPHY (response to tutor feedback on font choice).
-     Body text remains in a humanist sans-serif (Futura family) because at
-     the small sizes used for narrative paragraphs, axis labels, tooltips,
-     and KPI values, a sans-serif renders more clearly on screen than a
-     serif (Bringhurst, 2004; the same reason most digital UIs use sans).
-     Display elements (.intro-heading, h3, h4) are pulled out into Lora —
-     a calligraphic serif designed for screens — to give the narrative
-     headings stronger reading anchors and editorial voice, the same
-     hybrid pattern used by The New York Times and the BBC.
-     Futura first (Echo's Mac default) -> Avenir Next as the closest macOS
-     fallback -> Trebuchet MS as the only widely-installed geometric-ish sans
-     on Windows -> generic sans-serif as final safety net. */
-  font-family: 'Futura', 'Futura PT', 'Avenir Next', 'Avenir',
-               'Trebuchet MS', sans-serif;
-  /* 400 = Futura Book weight; reads cleanly on screen. <strong>/<b> default
+  /* SINGLE-FAMILY TYPOGRAPHY (response to tutor feedback on font choice).
+     The whole application uses Lora — a calligraphic serif designed
+     specifically for on-screen reading (Karpushina, SIL OFL). Hierarchy
+     is created entirely through weight (400/500/600/700) and size, not
+     through mixing typefaces. This single-family discipline produces a
+     more coherent reading experience than a serif/sans pairing
+     (Bringhurst, 2004, ch. 4; Tufte, 2001), and it ensures every text
+     element on every tab — hero questions, headings, narrative, KPI
+     numbers, chart axes, tooltips — reads as one consistent voice for
+     the intended audience.
+     Lora ships locally (./Lora, see addResourcePath() at the top of
+     this file). Georgia is the system-font fallback (pre-installed on
+     macOS / Windows / iOS / Android, also screen-optimised — Carter,
+     1996); Cambria is the Windows-only secondary fallback; generic
+     'serif' is the final safety net. */
+  font-family: 'Lora', Georgia, Cambria, 'Times New Roman', serif;
+  /* 400 = Lora Regular; reads cleanly on screen. <strong>/<b> default
      to 700 in every browser, so bold tags keep their emphasis. */
   font-weight: 400;
 }
@@ -585,18 +592,22 @@ body {
   margin: 1.5rem 0 1rem 0;
   text-align: center;
 }
-/* Reflection-block headings. <h3> introduces "What this map tells us" and
-   the About-tab section titles ("Data sources", "Credits", etc.); <h4>
-   carries the three callouts ("Key takeaway" / "Important context" /
-   "Continue exploring"). Both are narrative voice, not data labels, so
-   they share the same serif stack as the hero. */
+
 h3, h4 {
+  /* Reflection-block headings. <h3> introduces 'What this map tells us' and
+   the About-tab section titles ('Data sources', 'Credits', etc.); <h4>
+   carries the three callouts ('Key takeaway', 'Important context',
+   'Continue exploring'). Both are narrative voice, not data labels, so
+   they share the same serif stack as the hero. */
   font-family: 'Lora', Georgia, Cambria, 'Times New Roman', serif;
   font-weight: 600;
 }
+
 .intro-narrative {
-  /* 15px (not 14) because Futura has a smaller x-height than Segoe UI, so
-     equivalent visual weight needs a slightly larger size. */
+  /* 15px (not 14) because narrative prose at the default 14px feels
+     undersized next to the 3rem hero question above it; 15px also gives
+     Lora's slightly tall x-height room to breathe at line-height 1.6
+     without crowding. */
   font-size: 15px;
   /* font-weight inherits 400 from body. Removed the previous
      `font_weight: 100` (typo: underscore not hyphen, browsers ignored it). */
@@ -1298,7 +1309,7 @@ ui <- navbarPage(
         tags$h3("Credits"),
         p(
           "Created by ", strong("Wanting (Echo) Zhao"),
-          " for Data Visualisation Project"
+          " for Data Visualisation Project. June 2026"
         ),
 
         # ----- Source code -----
@@ -1563,11 +1574,11 @@ server <- function(input, output, session) {
         fillOpacity  = 0.65,
         label        = tab3_polygon_labels,
         labelOptions = labelOptions(
-          # Match the app's Futura cascade so the tooltip doesn't switch
+          # Match the app's Lora cascade so the tooltip doesn't switch
           # to leaflet's default Helvetica.
           style    = list(
             "font-family" = paste(
-              "'Futura', 'Avenir Next', 'Trebuchet MS', sans-serif"
+              "'Lora', Georgia, Cambria, serif"
             ),
             "font-size"   = "13px",
             "padding"     = "6px 10px"
@@ -1628,9 +1639,11 @@ server <- function(input, output, session) {
         fillOpacity  = 0.7,
         label        = tab4_polygon_labels,
         labelOptions = labelOptions(
+          # Match the app's Lora cascade (same as Tab 3) — single-family
+          # discipline so tooltips don't break the typographic voice.
           style    = list(
             "font-family" = paste(
-              "'Futura', 'Avenir Next', 'Trebuchet MS', sans-serif"
+              "'Lora', Georgia, Cambria, serif"
             ),
             "font-size"   = "13px",
             "padding"     = "6px 10px"
@@ -1702,6 +1715,8 @@ server <- function(input, output, session) {
       hovertemplate = "%{text}<extra></extra>"
     ) |>
       layout(
+        # Single-family discipline (see tab2_apply_layout for rationale).
+        font   = list(family = "'Lora', Georgia, Cambria, serif"),
         xaxis  = list(
           title      = "Median household income (USD)",
           tickformat = "$,d"
