@@ -1,0 +1,12 @@
+name: woof_ny_app
+title: woof_ny_app
+username: echozhao1998
+account: echozhao1998
+server: connect.posit.cloud
+hostUrl: https://api.connect.posit.cloud/v1
+appId: 019eb5ae-2a17-a82c-ebe7-e58e6240189a
+bundleId:
+url: https://connect.posit.cloud/echozhao1998/content/019eb5ae-2a17-a82c-ebe7-e58e6240189a
+version: 1
+asMultiple: FALSE
+asStatic: FALSE
